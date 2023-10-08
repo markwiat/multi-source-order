@@ -103,7 +103,7 @@ func main() {
 	}
 
 	constraint := order.CreateConstraint(order.WithSizeLimit(1000), order.WithHighestElemnt(elementTime(after10sec)))
-	sorted, err := order.GetSortedElements(elementTime(now), constraint, schedules)
+	sorted, hasNext, err := order.GetSortedElements(elementTime(now), constraint, schedules)
 	if err != nil {
 		fmt.Printf("failed to sort schedules: %s", err)
 		return
@@ -115,6 +115,7 @@ func main() {
 		scheduleID := s.ContainerId.(string)
 		fmt.Printf("scheduleID: %s, time: %v\n", scheduleID, at)
 	}
+	fmt.Printf("has next: %t\n", hasNext)
 }
 ```
 
@@ -135,4 +136,5 @@ scheduleID: everySec, time: 2023-10-08 15:24:10 +0200 CEST
 scheduleID: everySec, time: 2023-10-08 15:24:11 +0200 CEST
 scheduleID: everySec, time: 2023-10-08 15:24:12 +0200 CEST
 scheduleID: every4sec, time: 2023-10-08 15:24:12 +0200 CEST
+has next: false
 ```
