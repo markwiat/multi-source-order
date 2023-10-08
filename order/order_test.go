@@ -124,6 +124,7 @@ func TestGetSortedElements(t *testing.T) {
 		name    string
 		args    args
 		want    []resultItem
+		hasNext bool
 		wantErr bool
 	}{
 		{
@@ -135,6 +136,7 @@ func TestGetSortedElements(t *testing.T) {
 			},
 			want:    fullExpected,
 			wantErr: false,
+			hasNext: false,
 		},
 		{
 			name: "not from begin",
@@ -145,6 +147,7 @@ func TestGetSortedElements(t *testing.T) {
 			},
 			want:    fullExpected[1:],
 			wantErr: false,
+			hasNext: false,
 		},
 		{
 			name: "size constraint",
@@ -155,9 +158,10 @@ func TestGetSortedElements(t *testing.T) {
 			},
 			want:    fullExpected[0:5],
 			wantErr: false,
+			hasNext: true,
 		},
 		{
-			name: "limit constraint",
+			name: "high limit constraint",
 			args: args{
 				initial:    testElement(0),
 				constraint: highLimitConstraint,
@@ -165,6 +169,7 @@ func TestGetSortedElements(t *testing.T) {
 			},
 			want:    fullExpected[0:8],
 			wantErr: false,
+			hasNext: false,
 		},
 		{
 			name: "too high initial",
@@ -175,6 +180,7 @@ func TestGetSortedElements(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: true,
+			hasNext: false,
 		},
 		{
 			name: "no initial",
@@ -185,11 +191,12 @@ func TestGetSortedElements(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: true,
+			hasNext: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetSortedElements(tt.args.initial, tt.args.constraint, tt.args.sources)
+			got, hasNext, err := GetSortedElements(tt.args.initial, tt.args.constraint, tt.args.sources)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetSortedElements() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -200,6 +207,7 @@ func TestGetSortedElements(t *testing.T) {
 			}
 			gotMapped := toResultItems(got)
 			assert.Equal(t, gotMapped, tt.want)
+			assert.Equal(t, hasNext, tt.hasNext)
 		})
 	}
 }

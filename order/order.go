@@ -5,15 +5,15 @@ import (
 	"sort"
 )
 
-func GetSortedElements(initial Element, constraint Constraint, sources []Container) ([]SortedItem, error) {
+func GetSortedElements(initial Element, constraint Constraint, sources []Container) ([]SortedItem, bool, error) {
 	if err := sanitize(initial, constraint); err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
 	result := make([]SortedItem, 0)
 	holder, err := initStateHolder(initial, sources)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
 	for !constraint.isResultFull(len(result)) {
@@ -22,12 +22,14 @@ func GetSortedElements(initial Element, constraint Constraint, sources []Contain
 			break
 		}
 		if err := generateOne(holder, last.Element, sources, last.index); err != nil {
-			return nil, err
+			return nil, false, err
 		}
 		result = append(result, last.SortedItem)
 	}
 
-	return result, nil
+	r, hasNext := constraint.prepareFinalResult(result)
+
+	return r, hasNext, nil
 }
 
 func sanitize(initial Element, constraint Constraint) error {

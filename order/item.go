@@ -53,9 +53,17 @@ func (c Constraint) hasSizeLimit() bool {
 }
 
 func (c Constraint) isResultFull(resultSize int) bool {
-	return c.hasSizeLimit() && resultSize >= c.sizeLimit
+	return c.hasSizeLimit() && resultSize > c.sizeLimit
 }
 
 func (c Constraint) accept(e Element) bool {
 	return c.highest == nil || !c.highest.Before(e)
+}
+
+func (c Constraint) prepareFinalResult(elems []SortedItem) ([]SortedItem, bool) {
+	if c.hasSizeLimit() && len(elems) > c.sizeLimit {
+		return elems[0:c.sizeLimit], true
+	}
+
+	return elems, false
 }
