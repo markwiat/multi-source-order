@@ -1,13 +1,10 @@
 package order
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/go-playground/assert/v2"
 )
-
-const noNextErrMsg = "no next element"
 
 type testElement int
 
@@ -36,7 +33,7 @@ func (tc testContainer) NextAfter(e Element) (Element, error) {
 	}
 
 	if next == nil {
-		return nil, errors.New(noNextErrMsg)
+		return nil, nil
 	}
 
 	return testElement(*next), nil
@@ -61,10 +58,6 @@ func toResultItems(origs []SortedItem) []resultItem {
 	}
 
 	return result
-}
-
-var noNextErrCheck NoNextErrorChecker = func(err error) bool {
-	return err.Error() == noNextErrMsg
 }
 
 var noConstraint Constraint = CreateConstraint()
@@ -123,10 +116,9 @@ var fullExpected = []resultItem{
 
 func TestGetSortedElements(t *testing.T) {
 	type args struct {
-		initial       Element
-		constraint    Constraint
-		noNextChecker NoNextErrorChecker
-		sources       []Container
+		initial    Element
+		constraint Constraint
+		sources    []Container
 	}
 	tests := []struct {
 		name    string
@@ -137,10 +129,9 @@ func TestGetSortedElements(t *testing.T) {
 		{
 			name: "no constraint",
 			args: args{
-				initial:       testElement(0),
-				constraint:    noConstraint,
-				noNextChecker: noNextErrCheck,
-				sources:       containers,
+				initial:    testElement(0),
+				constraint: noConstraint,
+				sources:    containers,
 			},
 			want:    fullExpected,
 			wantErr: false,
@@ -148,10 +139,9 @@ func TestGetSortedElements(t *testing.T) {
 		{
 			name: "not from begin",
 			args: args{
-				initial:       testElement(1),
-				constraint:    noConstraint,
-				noNextChecker: noNextErrCheck,
-				sources:       containers,
+				initial:    testElement(1),
+				constraint: noConstraint,
+				sources:    containers,
 			},
 			want:    fullExpected[1:],
 			wantErr: false,
@@ -159,10 +149,9 @@ func TestGetSortedElements(t *testing.T) {
 		{
 			name: "size constraint",
 			args: args{
-				initial:       testElement(0),
-				constraint:    sizeConstraint,
-				noNextChecker: noNextErrCheck,
-				sources:       containers,
+				initial:    testElement(0),
+				constraint: sizeConstraint,
+				sources:    containers,
 			},
 			want:    fullExpected[0:5],
 			wantErr: false,
@@ -170,10 +159,9 @@ func TestGetSortedElements(t *testing.T) {
 		{
 			name: "limit constraint",
 			args: args{
-				initial:       testElement(0),
-				constraint:    highLimitConstraint,
-				noNextChecker: noNextErrCheck,
-				sources:       containers,
+				initial:    testElement(0),
+				constraint: highLimitConstraint,
+				sources:    containers,
 			},
 			want:    fullExpected[0:8],
 			wantErr: false,
@@ -181,10 +169,9 @@ func TestGetSortedElements(t *testing.T) {
 		{
 			name: "too high initial",
 			args: args{
-				initial:       testElement(20),
-				constraint:    highLimitConstraint,
-				noNextChecker: noNextErrCheck,
-				sources:       containers,
+				initial:    testElement(20),
+				constraint: highLimitConstraint,
+				sources:    containers,
 			},
 			want:    nil,
 			wantErr: true,
@@ -192,10 +179,9 @@ func TestGetSortedElements(t *testing.T) {
 		{
 			name: "no initial",
 			args: args{
-				initial:       nil,
-				constraint:    noConstraint,
-				noNextChecker: noNextErrCheck,
-				sources:       containers,
+				initial:    nil,
+				constraint: noConstraint,
+				sources:    containers,
 			},
 			want:    nil,
 			wantErr: true,
@@ -203,7 +189,7 @@ func TestGetSortedElements(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetSortedElements(tt.args.initial, tt.args.constraint, tt.args.noNextChecker, tt.args.sources)
+			got, err := GetSortedElements(tt.args.initial, tt.args.constraint, tt.args.sources)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetSortedElements() error = %v, wantErr %v", err, tt.wantErr)
 				return

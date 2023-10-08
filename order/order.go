@@ -5,13 +5,13 @@ import (
 	"sort"
 )
 
-func GetSortedElements(initial Element, constraint Constraint, noNextChecker NoNextErrorChecker, sources []Container) ([]SortedItem, error) {
+func GetSortedElements(initial Element, constraint Constraint, sources []Container) ([]SortedItem, error) {
 	if err := sanitize(initial, constraint); err != nil {
 		return nil, err
 	}
 
 	result := make([]SortedItem, 0)
-	holder, err := initStateHolder(initial, sources, noNextChecker)
+	holder, err := initStateHolder(initial, sources)
 	if err != nil {
 		return nil, err
 	}
@@ -21,7 +21,7 @@ func GetSortedElements(initial Element, constraint Constraint, noNextChecker NoN
 		if last == nil || !constraint.accept(last.Element) {
 			break
 		}
-		if err := generateOne(holder, last.Element, sources, noNextChecker, last.index); err != nil {
+		if err := generateOne(holder, last.Element, sources, last.index); err != nil {
 			return nil, err
 		}
 		result = append(result, last.SortedItem)
@@ -65,10 +65,10 @@ func pickLowest(valids []calcElement) calcElement {
 	return lowest
 }
 
-func initStateHolder(initial Element, sources []Container, noNextChecker NoNextErrorChecker) (stateHolder, error) {
+func initStateHolder(initial Element, sources []Container) (stateHolder, error) {
 	holder := make(map[int]SortedItem, len(sources))
 	for i, _ := range sources {
-		if err := generateOne(holder, initial, sources, noNextChecker, i); err != nil {
+		if err := generateOne(holder, initial, sources, i); err != nil {
 			return holder, err
 		}
 	}
@@ -76,14 +76,10 @@ func initStateHolder(initial Element, sources []Container, noNextChecker NoNextE
 	return holder, nil
 }
 
-func generateOne(holder stateHolder, element Element, sources []Container, noNextChecker NoNextErrorChecker, index int) error {
+func generateOne(holder stateHolder, element Element, sources []Container, index int) error {
 	next, err := sources[index].NextAfter(element)
 	if err != nil {
-		if noNextChecker(err) {
-			next = nil
-		} else {
-			return err
-		}
+		return err
 	}
 	se := SortedItem{
 		ContainerId: sources[index].ContainerId(),
