@@ -86,7 +86,7 @@ func generateOne(holder stateHolder, element Element, sources []Container, noNex
 		}
 	}
 	se := SortedItem{
-		ContainerId: sources[index].Id(),
+		ContainerId: sources[index].ContainerId(),
 		Element:     next,
 	}
 

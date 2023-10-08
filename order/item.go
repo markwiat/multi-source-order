@@ -6,7 +6,7 @@ type Element interface {
 
 type Container interface {
 	NextAfter(e Element) (Element, error)
-	Id() any
+	ContainerId() any
 }
 
 type SortedItem struct {

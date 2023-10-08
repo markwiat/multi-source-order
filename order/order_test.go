@@ -20,7 +20,7 @@ type testContainer struct {
 	containerId string
 }
 
-func (tc testContainer) Id() any {
+func (tc testContainer) ContainerId() any {
 	return tc.containerId
 }
 
